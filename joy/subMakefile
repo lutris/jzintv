@@ -1,0 +1,33 @@
+##############################################################################
+## subMakefile for mem
+##############################################################################
+
+joy/joy.o: joy/joy.c joy/joy.h mem/subMakefile periph/periph.h
+joy/joy.o: config.h event/event.h event/event_tbl.h 
+joy/joy.o: cp1600/cp1600.h cp1600/emu_link.h sdl.h
+
+joy/joy_gp2x.o: joy/joy.c joy/joy.h mem/subMakefile periph/periph.h
+joy/joy_gp2x.o: config.h event/event.h event/event_tbl.h 
+joy/joy_gp2x.o: cp1600/cp1600.h cp1600/emu_link.h sdl.h
+
+
+OBJS+=joy/joy.o
+
+.SUFFIXES: .rom .asm .mac
+
+PROGS   += $(R)/joy_diag.rom
+TOCLEAN += $(R)/joy_diag.rom joy/joy_diag.lst
+
+$(R)/joy_diag.rom:  ../examples/library/print.asm
+$(R)/joy_diag.rom:  ../examples/library/prnum16.asm
+$(R)/joy_diag.rom:  ../examples/library/prnum32.asm
+$(R)/joy_diag.rom:  ../examples/library/fillmem.asm
+$(R)/joy_diag.rom:  ../examples/library/hexdisp.asm
+$(R)/joy_diag.rom:  ../examples/library/gimini.asm
+$(R)/joy_diag.rom:  ../examples/macro/stic.mac
+$(R)/joy_diag.rom:  ../examples/macro/util.mac
+$(R)/joy_diag.rom:  ../examples/macro/print.mac
+$(R)/joy_diag.rom:  ../examples/macro/gfx.mac
+
+$(R)/joy_diag.rom:	$(B)/as1600$(X) joy/joy_diag.asm 
+	$(B)/as1600$(X) -o $(R)/joy_diag.rom -i../examples/ -l joy/joy_diag.lst -s joy/joy_diag.sym joy/joy_diag.asm

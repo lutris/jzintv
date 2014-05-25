@@ -1,0 +1,26 @@
+##############################################################################
+## subMakefile for dasm1600
+##############################################################################
+
+DASMSRC = dasm/dasm1600.c dasm/dasm1600o.c dasm/dis1600.c dasm/exec_interp.c
+DASMOBJ = dasm/dasm1600.o dasm/dasm1600o.o dasm/dis1600.o dasm/exec_interp.o
+
+DIS1600OBJ=dasm/dis1600.o dasm/exec_interp.o icart/icartrom.o icart/icartbin.o icart/icartfile.o util/symtab.o misc/avl.o misc/crc16.o plat/gnu_getopt.o $(BCOBJ) file/file.o misc/ll.o
+
+$(B)/dis1600$(X): $(DIS1600OBJ)
+	$(CC) -o $(B)/dis1600$(X) $(CFLAGS) $(DIS1600OBJ) $(LFLAGS)
+
+
+$(B)/dasm1600$(X): dasm/dasm1600.o
+	$(CC) -o $(B)/dasm1600$(X) $(CFLAGS) dasm/dasm1600.o $(LFLAGS)
+
+$(B)/dasm1600o$(X): dasm/dasm1600o.o
+	$(CC) -o $(B)/dasm1600o$(X) $(CFLAGS) dasm/dasm1600o.o $(LFLAGS)
+
+
+dasm/dis1600.o: 	dasm/dis1600.h dasm/exec_interp.h util/symtab.h
+dasm/exec_interp.o: dasm/dis1600.h dasm/exec_interp.h util/symtab.h
+
+TOCLEAN += $(B)/dis1600$(X) $(B)/dasm1600o$(X) $(B)/dasm1600$(X) $(DASMOBJ) 
+PROGS   += $(B)/dis1600$(X) $(B)/dasm1600o$(X) $(B)/dasm1600$(X)
+

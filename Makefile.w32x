@@ -1,0 +1,83 @@
+##############################################################################
+## Source-level Makefile for jzintv
+##
+## The whole make process is driven from the top-level Makefile.  In contrast
+## to the (poor) advice given in the Make documentation, I do _not_ call make
+## recursively to build the source of this project.
+##############################################################################
+
+##############################################################################
+## Project directory structure
+##############################################################################
+B=../bin
+L=../lib
+R=../rom
+
+##############################################################################
+## Project-wide build flags
+##############################################################################
+P         = PATH=/usr/local/win32/bin:$$PATH; export PATH;
+
+SDL_CFLAGS= -I$(SDL_DIR)/include -D_REENTRANT 
+SDL_LFLAGS= -L$(SDL_DIR)/lib -lmingw32 -lSDLmain -lSDL
+
+WARN    = -Wall -W -Wshadow -Wpointer-arith \
+			-Wbad-function-cast -Wcast-qual 
+
+# Set "X" to be the executable extension
+X = .exe
+
+# Set "RM" to be the remove/delete command
+RM = rm -f 
+
+CC = $(P) gcc
+
+ DEF_FLAGS  = -DWIN32 -DDOSTMP -DDIRECT_INTV2PC #-DNOGETOPT
+
+#OPT_FLAGS = -O
+#OPT_FLAGS = -O2 -ggdb $(WARN)
+ OPT_FLAGS = -O6 $(WARN)
+#OPT_FLAGS = -O2 -pg -ggdb $(WARN) 
+
+CFLAGS = $(OPT_FLAGS) -I. -I.. $(DEF_FLAGS)
+LFLAGS = -L../lib 
+
+OBJS=jzintv.o
+PROG=$(B)/jzintv$(X)
+TOCLEAN=$(B)/jzintv$(X) core
+
+PROGS=$(PROG)
+
+CFLAGS += $(SDL_CFLAGS) 
+LFLAGS += $(SDL_LFLAGS)
+
+##############################################################################
+## Generic build-rules
+##############################################################################
+
+all: $(OBJS) $(PROG)
+
+#mk_tbl_hack:
+#	make -f Makefile ../bin/mk_tbl
+
+$(PROG): $(OBJS)
+	$(CC) -o $(PROG) $(OBJS) $(CFLAGS) $(LFLAGS)
+
+clean:
+	$(RM) $(OBJS) 
+	$(RM) $(TOCLEAN)
+
+%.o: %.c
+	$(CC) -o $@ $(CFLAGS) -c $<
+
+##############################################################################
+## Win32 specific stuff
+##############################################################################
+
+OBJS += pads/pads_cgc_win32.o pads/pads_intv2pc.o
+
+##############################################################################
+## Makefile.common includes all the subMakefiles and such
+##############################################################################
+include Makefile.common
+build: jzIntv SDK-1600

@@ -1,0 +1,31 @@
+##############################################################################
+## subMakefile for event
+##############################################################################
+
+event/event.o:     event/event.c event/event.h event/event_tbl.h 
+event/event.o:     event/subMakefile plat/plat_lib.h config.h sdl.h
+event/event.o:     joy/joy.h mouse/mouse.h
+
+event/event_tbl.o: event/event_tbl.c event/event.h event/event_tbl.h 
+event/event_tbl.o: event/subMakefile plat/plat_lib.h config.h sdl.h
+
+OBJS+=event/event.o event/event_tbl.o
+
+.SUFFIXES: .rom .asm .mac
+
+PROGS   += $(R)/event_diag.rom
+TOCLEAN += $(R)/event_diag.rom event/event_diag.lst
+
+$(R)/event_diag.rom:  ../examples/library/print.asm
+$(R)/event_diag.rom:  ../examples/library/prnum16.asm
+$(R)/event_diag.rom:  ../examples/library/prnum32.asm
+$(R)/event_diag.rom:  ../examples/library/fillmem.asm
+$(R)/event_diag.rom:  ../examples/library/hexdisp.asm
+$(R)/event_diag.rom:  ../examples/library/gimini.asm
+$(R)/event_diag.rom:  ../examples/macro/stic.mac
+$(R)/event_diag.rom:  ../examples/macro/util.mac
+$(R)/event_diag.rom:  ../examples/macro/print.mac
+$(R)/event_diag.rom:  ../examples/macro/gfx.mac
+
+$(R)/event_diag.rom:	$(B)/as1600$(X) event/event_diag.asm 
+	$(B)/as1600$(X) -o $(R)/event_diag.rom -i../examples/ -l event/event_diag.lst event/event_diag.asm

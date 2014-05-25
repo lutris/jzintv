@@ -1,0 +1,10 @@
+##############################################################################
+## subMakefile for mouse
+##############################################################################
+
+mouse/mouse.o: mouse/mouse.c mouse/mouse.h mem/subMakefile periph/periph.h
+mouse/mouse.o: config.h event/event.h event/event_tbl.h 
+mouse/mouse.o: sdl.h
+
+OBJS+=mouse/mouse.o
+

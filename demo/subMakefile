@@ -1,0 +1,9 @@
+##############################################################################
+## subMakefile for demo
+##############################################################################
+
+demo/demo.o: stic/stic.h demo/demo.h demo/demo.c demo/subMakefile
+demo/demo.o: periph/periph.h config.h gfx/gfx.h ay8910/ay8910.h snd/snd.h
+
+OBJS += demo/demo.o 
+

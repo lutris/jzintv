@@ -1,0 +1,8 @@
+##############################################################################
+## subMakefile for speed
+##############################################################################
+
+speed/speed.o: speed/speed.c speed/speed.h speed/subMakefile gfx/gfx.h
+speed/speed.o: stic/stic.h demo/demo.h
+
+OBJS+=speed/speed.o

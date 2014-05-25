@@ -1,0 +1,68 @@
+##############################################################################
+## subMakefile for cp1600
+##############################################################################
+
+
+T=cp1600/tbl
+
+CP1600_TABLES=	\
+		$(T)/fn_cond_br.c		\
+		$(T)/fn_dir_2op.c		\
+		$(T)/fn_imm_2op.c		\
+		$(T)/fn_impl_1op_a.c	\
+		$(T)/fn_impl_1op_b.c	\
+		$(T)/fn_ind_2op.c		\
+		$(T)/fn_reg_1op.c		\
+		$(T)/fn_reg_2op.c		\
+		$(T)/fn_rot_1op.c		\
+		$(T)/formats.c
+		
+CP1600_TBLOBJ=	\
+		$(T)/fn_cond_br.o		\
+		$(T)/fn_dir_2op.o		\
+		$(T)/fn_imm_2op.o		\
+		$(T)/fn_impl_1op_a.o	\
+		$(T)/fn_impl_1op_b.o	\
+		$(T)/fn_ind_2op.o		\
+		$(T)/fn_reg_1op.o		\
+		$(T)/fn_reg_2op.o		\
+		$(T)/fn_rot_1op.o		\
+		$(T)/formats.o
+
+
+#$(B)/mk_tbl: cp1600/mk_tbl.o
+#	$(CC) -o $(B)/mk_tbl $(CFLAGS) cp1600/mk_tbl.o $(LFLAGS)
+#
+#cp1600/tbl/%.c: cp1600/%.tbl
+#	$(B)/mk_tbl $< $@
+
+cp1600/cp1600.o: cp1600/cp1600.c cp1600/cp1600.h 
+cp1600/cp1600.o: cp1600/subMakefile config.h plat/plat_lib.h
+cp1600/cp1600.o: cp1600/cp1600.h cp1600/op_exec.h cp1600/op_decode.h
+cp1600/cp1600.o: periph/periph.h cp1600/req_bus.h
+
+cp1600/op_decode.o: cp1600/op_decode.c cp1600/op_decode.h $(CP1600_TABLES)
+cp1600/op_decode.o: cp1600/subMakefile config.h cp1600/op_tables.h
+cp1600/op_decode.o: cp1600/cp1600.h cp1600/op_exec.h cp1600/op_decode.h 
+cp1600/op_decode.o: periph/periph.h cp1600/req_bus.h plat/plat_lib.h
+
+cp1600/op_exec.o: cp1600/op_exec.c cp1600/op_exec.h
+cp1600/op_exec.o: cp1600/subMakefile config.h plat/plat_lib.h
+cp1600/op_exec.o: cp1600/cp1600.h cp1600/op_exec.h cp1600/op_decode.h
+cp1600/op_exec.o: periph/periph.h cp1600/req_bus.h cp1600/emu_link.h
+
+cp1600/op_tables.h: config.h cp1600/req_bus.h plat/plat_lib.h
+cp1600/op_tables.h: periph/periph.h cp1600/cp1600.h cp1600/op_exec.h
+
+cp1600/emu_link.o: cp1600/cp1600.h cp1600/emu_link.h config.h periph/periph.h
+
+$(CP1600_TABLES): periph/periph.h cp1600/cp1600.h cp1600/op_exec.h
+$(CP1600_TABLES): cp1600/op_tables.h config.h 
+#$(CP1600_TABLES): $(B)/mk_tbl 
+
+#$(CP1600_TBLOBJ): $(CP1600_TABLES)
+
+OBJS    += cp1600/cp1600.o cp1600/op_decode.o cp1600/op_exec.o $(CP1600_TBLOBJ)
+OBJS    += cp1600/emu_link.o
+
+#TOCLEAN += cp1600/mk_tbl.o $(CP1600_TBLOBJ) $(B)/mk_tbl

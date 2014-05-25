@@ -1,0 +1,139 @@
+##############################################################################
+## subMakefile for utilities
+##############################################################################
+
+#$(B)/test_cart$(X): util/test_cart.o  util/cart.o plat/plat_lib.o 
+#	 $(CC) -O3 -finline -o $(B)/test_cart$(X) $(CFLAGS) util/test_cart.o util/cart.o plat/plat_lib.o
+ 
+$(B)/test_hcif$(X): util/test_hcif.c
+	$(CC) -O3 -finline -o $(B)/test_hcif$(X) $(CFLAGS) util/test_hcif.c $(LFLAGS)
+
+$(B)/show_grom$(X): util/show_grom.o
+	$(CC) -o $(B)/show_grom$(X) $(CFLAGS) util/show_grom.o $(LFLAGS)
+
+$(B)/tohex$(X): util/tohex.o
+	$(CC) -o $(B)/tohex$(X) $(CFLAGS) util/tohex.o $(LFLAGS)
+
+$(B)/tobit$(X): util/tobit.o
+	$(CC) -o $(B)/tobit$(X) $(CFLAGS) util/tobit.o $(LFLAGS)
+
+$(B)/tobit_f$(X): util/tobit_f.o
+	$(CC) -o $(B)/tobit_f$(X) $(CFLAGS) util/tobit_f.o $(LFLAGS)
+
+$(B)/tobit_r$(X): util/tobit_r.o
+	$(CC) -o $(B)/tobit_r$(X) $(CFLAGS) util/tobit_r.o $(LFLAGS)
+
+$(B)/fromhex$(X): util/fromhex.o
+	$(CC) -o $(B)/fromhex$(X) $(CFLAGS) util/fromhex.o $(LFLAGS)
+
+$(B)/frombit$(X): util/frombit.o
+	$(CC) -o $(B)/frombit$(X) $(CFLAGS) util/frombit.o $(LFLAGS)
+
+$(B)/frombit_r$(X): util/frombit_r.o
+	$(CC) -o $(B)/frombit_r$(X) $(CFLAGS) util/frombit_r.o $(LFLAGS)
+
+$(B)/dasm0256$(X): util/dasm0256.o misc/avl.o util/symtab.o util/bitmem.o
+	$(CC) -o $(B)/dasm0256$(X) $(CFLAGS) misc/avl.o util/symtab.o util/bitmem.o util/dasm0256.o $(LFLAGS)
+
+$(B)/rom_merge$(X): util/rom_merge.o icart/icartrom.o icart/icartbin.o icart/icartfile.o misc/crc16.o plat/gnu_getopt.o $(BCOBJ) file/file.o misc/ll.o
+	$(CC) -o $(B)/rom_merge$(X) $(CFLAGS) util/rom_merge.o icart/icartrom.o icart/icartbin.o icart/icartfile.o misc/crc16.o plat/gnu_getopt.o $(BCOBJ) file/file.o misc/ll.o $(LFLAGS)
+
+$(B)/split_rom$(X): util/split_rom.o icart/icartrom.o icart/icartbin.o icart/icartfile.o misc/crc16.o plat/gnu_getopt.o $(BCOBJ) file/file.o misc/ll.o
+	$(CC) -o $(B)/split_rom$(X) $(CFLAGS) util/split_rom.o icart/icartrom.o icart/icartbin.o icart/icartfile.o misc/crc16.o plat/gnu_getopt.o $(BCOBJ) file/file.o misc/ll.o $(LFLAGS)
+
+$(B)/rom2bin$(X): util/rom2bin.o icart/icartrom.o icart/icartbin.o misc/crc16.o $(BCOBJ) file/file.o misc/ll.o
+	$(CC) -o $(B)/rom2bin$(X) $(CFLAGS) util/rom2bin.o icart/icartrom.o icart/icartbin.o misc/crc16.o $(BCOBJ) file/file.o misc/ll.o $(LFLAGS)
+
+$(B)/bin2rom$(X): util/bin2rom.o icart/icartrom.o icart/icartbin.o misc/crc16.o $(BCOBJ) file/file.o misc/ll.o
+	$(CC) -o $(B)/bin2rom$(X) $(CFLAGS) util/bin2rom.o icart/icartrom.o icart/icartbin.o misc/crc16.o $(BCOBJ) file/file.o misc/ll.o $(LFLAGS)
+
+$(B)/gms2rom$(X): util/gms2rom.o icart/icartrom.o misc/crc16.o
+	$(CC) -o $(B)/gms2rom$(X) $(CFLAGS) util/gms2rom.o icart/icartrom.o misc/crc16.o $(LFLAGS)
+
+$(B)/imvtogif$(X): util/imvtogif.o mvi/mvi.o gif/gif_enc.o gif/lzw_enc.o minilzo/minilzo.o
+	$(CC) -o $(B)/imvtogif$(X) $(CFLAGS) util/imvtogif.o mvi/mvi.o gif/gif_enc.o gif/lzw_enc.o minilzo/minilzo.o $(LFLAGS)
+
+$(B)/imvtoppm$(X): util/imvtoppm.o mvi/mvi.o minilzo/minilzo.o
+	$(CC) -o $(B)/imvtoppm$(X) $(CFLAGS) util/imvtoppm.o mvi/mvi.o minilzo/minilzo.o $(LFLAGS)
+
+$(B)/rman$(X): util/rman.o gif/gif_enc.o gif/lzw_enc.o
+	$(CC) -o $(B)/rman$(X) $(CFLAGS) util/rman.o gif/gif_enc.o gif/lzw_enc.o $(LFLAGS)
+
+$(B)/crc32$(X): util/crc32.o misc/crc32.o misc/file_crc32.o
+	$(CC) -o $(B)/crc32$(X) $(CFLAGS) util/crc32.o misc/crc32.o misc/file_crc32.o $(LFLAGS)
+
+#$(B)/ec_load$(X): util/ec_load.o util/ecscable.o icart/icartrom.o misc/crc16.o plat/plat_lib.o
+#	$(CC) -o $(B)/ec_load$(X) $(CFLAGS) util/ec_load.o util/ecscable.o icart/icartrom.o misc/crc16.o plat/plat_lib.o
+
+#$(B/ec_watch$(X): util/ec_watch.o util/ecscable.o  plat/plat_lib.o
+#	$(CC) -o $(B)/ec_watch$(X) $(CFLAGS) util/ec_watch.o util/ecscable.o  plat/plat_lib.o
+
+#$(B)/ec_dump$(X): util/ec_dump.o util/ecscable.o  plat/plat_lib.o
+#	$(CC) -o $(B)/ec_dump$(X) $(CFLAGS) util/ec_dump.o util/ecscable.o  plat/plat_lib.o
+
+#$(B)/ec_test$(X): util/ec_test.o util/ecscable.o  plat/plat_lib.o
+#	$(CC) -o $(B)/ec_test$(X) $(CFLAGS) util/ec_test.o util/ecscable.o  plat/plat_lib.o
+
+$(B)/cgc_update$(X): util/cgc_update.o
+	$(CC) -o $(B)/cgc_update$(X) $(CFLAGS) util/cgc_update.o $(LFLAGS)
+
+#util/test_cart.o:   util/cart.h config.h plat/plat_lib.h
+util/test_hcif.o:   config.h plat/plat_lib.h
+#util/ec_test.o:     util/ecscable.h config.h plat/plat_lib.h
+#util/ec_dump.o:     util/ecscable.h config.h plat/plat_lib.h
+#util/ec_watch.o:    util/ecscable.h config.h plat/plat_lib.h
+#util/ec_load.o:     util/ecscable.h config.h plat/plat_lib.h
+util/dasm0256.o:    misc/avl.h util/symtab.h util/bitmem.h
+util/symtab.o:      misc/avl.h util/symtab.h
+util/bitmem.o:      util/bitmem.h
+util/rom2bin.o:     misc/crc16.h icart/icartrom.h icart/icartbin.h
+util/bin2rom.o:     misc/crc16.h icart/icartrom.h file/file.h
+util/gms2rom.o:     misc/crc16.h icart/icartrom.h
+util/rom_merge.o:   misc/crc16.h icart/icartrom.h icart/icartbin.h
+util/crc32.o:		misc/crc32.h misc/file_crc32.h
+
+# force a couple files to build w/ optimization for inb()/outb() macros
+#util/cart.o:        util/cart.h config.h plat/plat_lib.h
+#	$(CC) -O3 -finline -o util/cart.o $(CFLAGS) -c util/cart.c
+#util/ecscable.o:    util/ecscable.h config.h
+#	$(CC) -O3 -finline -o util/ecscable.o $(CFLAGS) -c util/ecscable.c
+
+PROGS += $(B)/show_grom$(X) $(B)/crc32$(X)
+PROGS += $(B)/tobit$(X) $(B)/tobit_r$(X) $(B)/frombit$(X) $(B)/frombit_r$(X)
+PROGS += $(B)/tohex$(X) $(B)/fromhex$(X) $(B)/bin2rom$(X)
+PROGS += $(B)/dasm0256$(X) $(B)/tobit_f$(X) $(B)/rom2bin$(X) $(B)/gms2rom$(X)
+#PROGS += $(B)/ec_load$(X) $(B)/ec_watch$(X) $(B)/ec_dump$(X) $(B)/ec_test$(X)
+#PROGS += $(B)/test_hcif$(X) $(B)/test_cart$(X)
+PROGS += $(B)/rom_merge$(X)
+PROGS += $(B)/split_rom$(X)
+PROGS += $(B)/imvtogif$(X) $(B)/imvtoppm$(X) 
+PROGS += $(B)/cgc_update$(X)
+
+TOCLEAN += util/test_hcif.o $(PROGS) util/cgc_update.o
+TOCLEAN += util/dasm0256.o util/symtab.o util/bitmem.o 
+TOCLEAN += util/tohex.o util/tobit.o util/tobit_r.o util/show_grom.o
+TOCLEAN += util/fromhex.o util/frombit.o util/frombit_r.o 
+TOCLEAN += util/tobit_f.o util/rom2bin.o util/gms2rom.o
+TOCLEAN += util/bin2rom.o util/crc32.o util/imvtoppm.o
+TOCLEAN += util/ec_dump.o util/test_cart.o util/cart.o
+TOCLEAN += util/ecscable.o util/ec_load.o util/ec_watch.o util/ec_test.o
+TOCLEAN += util/rom_merge.o util/split_rom.o util/imvtogif.o util/rman.o
+
+.SUFFIXES: .rom .asm .mac
+
+PROGS   += $(R)/emu_ver.rom
+TOCLEAN += $(R)/emu_ver.rom util/emu_ver.lst
+
+$(R)/emu_ver.rom:  ../examples/library/print.asm
+$(R)/emu_ver.rom:  ../examples/library/prnum16.asm
+$(R)/emu_ver.rom:  ../examples/library/prnum32.asm
+$(R)/emu_ver.rom:  ../examples/library/fillmem.asm
+$(R)/emu_ver.rom:  ../examples/library/hexdisp.asm
+$(R)/emu_ver.rom:  ../examples/library/gimini.asm
+$(R)/emu_ver.rom:  ../examples/macro/stic.mac
+$(R)/emu_ver.rom:  ../examples/macro/util.mac
+$(R)/emu_ver.rom:  ../examples/macro/print.mac
+$(R)/emu_ver.rom:  ../examples/macro/gfx.mac
+
+$(R)/emu_ver.rom:	$(B)/as1600$(X) util/emu_ver.asm 
+	$(B)/as1600$(X) -o $(R)/emu_ver.rom -i../examples/ -l util/emu_ver.lst util/emu_ver.asm

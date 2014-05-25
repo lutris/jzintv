@@ -1,0 +1,31 @@
+##############################################################################
+## subMakefile for jlp:  Jean-Luc Project extra features support
+##############################################################################
+
+jlp/jlp.o: jlp/jlp.c jlp/jlp.h jlp/subMakefile config.h 
+jlp/jlp.o: periph/periph.h plat/plat_lib.h
+
+OBJS += jlp/jlp.o
+
+.SUFFIXES: .bin .asm .mac
+
+PROGS   += $(R)/jlp_test.bin
+PROGS   += $(R)/jlp_rand_stats.bin
+TOCLEAN += $(R)/jlp_test.bin jlp/jlp_test.lst 
+TOCLEAN += jlp/jlp_test.sym jlp/jlp_test.smap
+TOCLEAN += $(R)/jlp_rand_stats.bin jlp/jlp_rand_stats.lst
+
+$(R)/jlp_test.bin:  ../examples/library/print.asm
+$(R)/jlp_test.bin:  ../examples/library/fillmem.asm
+$(R)/jlp_test.bin:  ../examples/library/hexdisp.asm
+$(R)/jlp_test.bin:  ../examples/library/gimini.asm
+$(R)/jlp_test.bin:  ../examples/macro/stic.mac
+$(R)/jlp_test.bin:  ../examples/macro/util.mac
+$(R)/jlp_test.bin:  ../examples/macro/print.mac
+$(R)/jlp_test.bin:  ../examples/macro/gfx.mac
+
+$(R)/jlp_test.bin:	$(B)/as1600$(X) jlp/jlp_test.asm 
+	$(B)/as1600$(X) -o $(R)/jlp_test.bin -i../examples/ -l jlp/jlp_test.lst -s jlp/jlp_test.sym -j jlp/jlp_test.smap jlp/jlp_test.asm
+
+$(R)/jlp_rand_stats.bin:	$(B)/as1600$(X) jlp/jlp_rand_stats.asm 
+	$(B)/as1600$(X) -o $(R)/jlp_rand_stats.bin -i../examples/ -l jlp/jlp_rand_stats.lst jlp/jlp_rand_stats.asm

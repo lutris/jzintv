@@ -1,0 +1,7 @@
+##############################################################################
+## subMakefile for the serializer
+##############################################################################
+
+serializer/serializer.o: serializer/serializer.c serializer/serializer.h serializer/subMakefile
+
+OBJS+=serializer/serializer.o

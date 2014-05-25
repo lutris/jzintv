@@ -1,0 +1,122 @@
+##############################################################################
+## Source-level Makefile for jzintv
+##
+## The whole make process is driven from the top-level Makefile.  In contrast
+## to the (poor) advice given in the Make documentation, I do _not_ call make
+## recursively to build the source of this project.
+##############################################################################
+
+##############################################################################
+## Project directory structure
+##############################################################################
+B=../bin
+L=../lib
+R=../rom
+
+##############################################################################
+## Project-wide build flags
+##############################################################################
+P           = export PATH;
+
+#Changed to use SDL frameworks .-- Fri. Aug. 6 JJT
+
+#The instructions for installing the SDL framework suggest that it be placed in
+#your ~/Library/Frameworks directory. Override this variable if this is not the
+#case.
+SDL_FRAMEWORK := /Library/Frameworks/SDL.framework
+#SDL_FRAMEWORK := /Developer/SDKs/MacOSX10.4u.sdk/Library/Frameworks/SDL.framework
+
+
+#Flags for using the so-called "portable syntax" for including SDL headers (such as #include "SDL.h")
+SDL_PORT_SYN_FLAGS := -I$(SDL_FRAMEWORK)/Headers/
+
+#Note: -F$(SDL_FRAMEWORK)/.. ensures that gcc can find the SDL framework even
+#if SDL_FRAMEWORK had to be overrriden.  See above.
+SDL_CFLAGS := 
+SDL_LFLAGS := -F$(SDL_FRAMEWORK)/.. -framework SDL -framework AppKit -framework Foundation -lobjc
+
+# Set "X" to be the executable extension
+X =        
+
+# Set "RM" to be the remove/delete command
+RM = rm -f 
+
+ WARN    = -Wall -W -Wshadow -Wpointer-arith \
+	       -Wbad-function-cast -Wcast-qual 
+ WARNXX  = -Wall -W -Wshadow -Wpointer-arith -Wcast-qual 
+
+ CC  = $(P) gcc $(A)
+ CXX = $(P) g++ $(A)
+
+DEF_FLAGS =  -Dmacosx
+
+#OPT_FLAGS = -ggdb 
+#OPT_FLAGS = -O
+#OPT_FLAGS = -O2 -ggdb
+ OPT_FLAGS = -O6 -fomit-frame-pointer -msse3
+#OPT_FLAGS = -O2 -pg -ggdb -DLOCAL=
+
+#ARCH     = -arch ppc -arch i386 -m32
+ARCH     = -arch i386
+CFLAGS   = -mmacosx-version-min=10.4 -L../lib
+CFLAGS  += $(OPT_FLAGS) $(WARN)    -I. -I.. $(DEF_FLAGS) $(ARCH) $(EXTRA)
+CXXFLAGS = -mmacosx-version-min=10.4 -L../lib
+CXXFLAGS += $(OPT_FLAGS) $(WARNXX)  -I. -I.. $(DEF_FLAGS) $(ARCH) $(EXTRA) 
+#LFLAGS   = -isysroot /Developer/SDKs/MacOSX10.4u.sdk -mmacosx-version-min=10.4 -L../lib
+#LFLAGS   = -isysroot /Developer/SDKs/MacOSX10.7.sdk -L../lib
+LFLAGS   = -L../lib
+
+#Note: SDL_Main.o is *not* included, as it needs to be handled specially.
+# -- Tues Aug. 31 JJT
+OBJS     = jzintv.o 
+PROG     = $(B)/jzintv$(X)
+TOCLEAN += $(B)/jzintv$(X) core libjzintv_common.a$(X) 
+TOCLEAN += SDLMain.o jzintv_fromcommon$(X)
+OBJS    += pads/pads_cgc_linux.o
+
+PROGS = $(PROG)
+
+CFLAGS += $(SDL_CFLAGS) 
+#Reserving SDL to the FINAL link --Sat Aug. 7 JJT
+#LFLAGS += $(SDL_LFLAGS)
+
+
+
+##############################################################################
+## Generic build-rules
+##############################################################################
+
+all: $(OBJS) $(PROGS) libjzintv_common.a
+
+##############################################################################
+## Makefile.common includes all the subMakefiles and such
+##############################################################################
+ include Makefile.common
+ 
+$(PROG): $(OBJS) libjzintv_common.a SDLMain.o
+	$(CC) -o $(PROG) $(OBJS) SDLMain.o $(CFLAGS) $(LFLAGS) $(SDL_LFLAGS) $(CHEAT_LFLAGS)
+
+#Library for use with the OS X GUI project.
+libjzintv_common.a : $(OBJS) 
+	libtool -o libjzintv_common.a $(OBJS) 
+
+#Test program for libjzintv_common.a . If everything is OK, this program should
+#behave exactly like jzintv.
+jzintv_fromcommon : libjzintv_common.a SDLMain.o
+	$(CC) -o jzintv_fromcommon $(CFLAGS) SDLMain.o $(LFLAGS) $(SDL_LFLAGS) -L. -ljzintv_common 
+
+clean:
+	$(RM) $(OBJS) 
+	$(RM) $(TOCLEAN)
+
+SDLMain.o: SDLMain.m SDLMain.h
+	$(CC) -o $@ $(CFLAGS) $(SDL_PORT_SYN_FLAGS) -c $<
+	
+%.o: %.c
+	$(CC) -o $@  $(CFLAGS) -c $<
+
+%.o: %.cpp
+	$(CXX) -o $@  $(CXXFLAGS) -c $<
+
+build: jzIntv SDK-1600
+

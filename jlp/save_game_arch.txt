@@ -1,0 +1,171 @@
+Save-game Architecture
+
+Save-games are built around three structures:
+
+1.  64 24-bit word (192 bytes, 96 16-bit word) flash rows
+2.  512 24-bit word flash sectors
+3.  A slot number (0-7) that identifies a logical save-game slot 
+
+When save-games are enabled, JLP commandeers the upper 768 words of JLP RAM.  
+If no save-games are used, this RAM remains available to the game.  JLP only 
+commandeers this memory in response to save-game commands, and is available 
+for game use the rest of the time.
+
+MEMORY MAP
+
+$8000 - $9F7F:  7.875K words RAM
+
+    $8000 - $9C7F:  7.125K words available for games to use as they please
+    $9C80 - $9CDF:  Save Game slot 0 (96 words)
+    $9CE0 - $9D3F:  Save Game slot 1 (96 words)
+    $9D40 - $9D9F:  Save Game slot 2 (96 words)
+    $9DA0 - $9DFF:  Save Game slot 3 (96 words)
+    $9E00 - $9E5F:  Save Game slot 4 (96 words)
+    $9E60 - $9EBF:  Save Game slot 5 (96 words)
+    $9EC0 - $9F1F:  Save Game slot 6 (96 words)
+    $9F20 - $9F7F:  Save Game slot 7 (96 words)
+
+
+ISSUING COMMANDS
+
+The save-game feature in JLP communicates with games via the 768-word
+windows in RAM shown above.  All save-game functions are invoked through
+a single command register at $9FFF.  Programs write a command word to this 
+location, wait for JLP to complete its operation, and then examine the
+result in RAM.  The write must originate from an instruction whose last
+word is at location $0300.
+
+Command words are formatted as follows:
+
+     15  14  13  12  11  10   9   8   7   6   5   4   3   2   1   0
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+    | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 1 |      slot update bitmap       |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+
+The upper 8 bits have a fixed value that JLP uses to verify that this write
+is a valid command write.  The lower 8 bits form a bitmap indicating the
+operation to perform on each of the 8 slots.  Bit 0 corresponds to slot 0,
+bit 1 to slot 1, etc.
+
+ -- A 0 in the bitmap indicates a read operation.  JLP will read the
+    latest value for each slot whose bitmap is zero and update the
+    image in RAM.
+
+ -- A 1 in the bitmap indicates a write operation.  JLP will record
+    the information in the given slot as the latest value for that slot.
+
+Thus, saving and loading are accomplished with the same command word.
+JLP combines the two operations because a write may require erasing the
+flash memory pool and JLP needs somewhere to put the "current" values
+for all 8 slots while it erases.
+
+Issuing the save-game command is tricky.  Because the related flash 
+operations are slow, JLP will stop responding to accesses while a command 
+is in progress.  Therefore, games must NOT use any resources (RAM or ROM) 
+provided by JLP while a command is busy.
+
+Thus, games must do the following:
+
+1.  Point the stack to a region in System RAM.
+2.  Download a short bit of code to System RAM to execute the command.
+3.  Point the interrupt service vector to a routine in System RAM.
+4.  Issue the command from System RAM.
+4.  Spin in a busy loop in System RAM until JLP begins responding again.
+
+Note that it's not necessary to actually disable interrupts.  In fact, from a 
+game-player experience perspective, disabling interrupts is a bad idea, as 
+that will cause the display to blank or flash.
+
+To determine that JLP has completed its command, programs should poll location 
+$9FFF until it returns the value $0000.  While JLP is busy, location $9FFF 
+should return $FFFF.
+
+The following code sequence illustrates how to use JLP's save game feature.  
+It sets up a stub ISR that keeps the screen enabled, and issues the save-game
+command with the bitmap in R0.  It expects to be able to put a 16-word stack 
+at $2F0, and 9 words of code at $300 - $308.  Note:  I currently plan to have 
+JLP verify that the write to $9FFF occurs from code at location $0300.  Given 
+that, please ensure that at least the "MVO@ R0, R1" remains at $0300 if you
+change the code below.
+
+;; ======================================================================== ;;
+;;  SG_UPD:  Update the save-game slots based on bitmap in R0.              ;;
+;; ======================================================================== ;;
+SG_UPD  PROC
+        PSHR    R5
+        JSRD    R5,         @@copy
+        ;; === start of code that will run from RAM
+        MVO@    R0,         R1      ; $300: initiate command
+@@loop: CMP@    R1,         R2      ; $301: Check for JLP to return
+        BNEQ    @@loop              ; $302:
+        JR      R5                  ; $304:
+        MVII    #$20,       R1      ; $305: \
+        MVO@    R1,         R1      ; $307:  |- simple ISR
+        JR      R5                  ; $308: /
+        ;; === end of code that will run from RAM
+@@copy: 
+        MVII    #$300,      R4
+        REPEAT  9       
+        MVI@    R5,         R2      ; \_ Copy code fragment to System RAM
+        MVO@    R2,         R4      ; /
+        ENDR
+
+        MOVR    R6,         R2      ; save old stack pointer
+        MVII    #$2F0,      R6      ; new stack pointer
+        PSHR    R2                  ; save old SP on new stack
+
+        MVII    #$100,      R4      ; \
+        SDBD                        ;  |_ Save old ISR on new stack
+        MVI@    R4,         R2      ;  |
+        PSHR    R2                  ; /
+
+        MVII    #$305,      R2      ; \
+        MVO     R2,         $100    ;  |_ Set up new ISR in RAM
+        SWAP    R2                  ;  |
+        MVO     R2,         $101    ; /
+
+        MVII    #$9FFF,     R1      ; \
+        ANDI    #$00FF,     R0      ;  |- Set up command word
+        XORI    #$A500,     R0      ; /
+
+        CLRR    R2                  ; JLP returns 0 @ $9FFF when ready
+        JSRE    R5,         $300    ; Invoke the command
+
+        PULR    R2                  ; \ 
+        MVO     R2,         $100    ;  |_ Restore old ISR from new stack
+        SWAP    R2                  ;  |
+        MVO     R2,         $101    ; /
+
+        PULR    R6                  ; Restore old SP
+        PULR    PC                  ; Return
+        ENDP
+
+
+REDUCING NUMBER OF SLOTS
+
+Many games will need fewer than 8 slots, and may wish to reclaim some of the 
+768 words these slots occupy.  To do that, programs can write an "active slot 
+count" to location $9FFE.  The number written here indicates the first slot 
+number that's active.  Slot numbers equal to or greater than this number will 
+be available.  As with location $9FFF, this is protected with a magic 
+constant in bits 4 through 15:
+
+     15  14  13  12  11  10   9   8   7   6   5   4   3   2   1   0
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+    | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 1 | 1 | 0 | 1 | 0 | first slot #  |
+    +---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+
+Writing 0 means all 8 slots are available.  Writing 6 means that only slots 
+6 and 7 will be available.  A number larger than 7 effectively disables the 
+save-game feature.
+
+NOTE:  If you reduce the number of available slots after storing something in
+a lower numbered slot, you may not be able to retrieve the data in the lower
+numbered slot in the future if you do any updates to the flash.  This is 
+because JLP uses the slot storage to hold the "latest versions" of each slot 
+when it has to erase flash when the flash pool wraps around.  If a given update
+causes the pool to wrap, JLP won't have any place to temporarily store the
+data for these lower numbered slots.
+
+It should be safe to lower the number of available slots temporarily if you 
+don't write any slot updates during that time.

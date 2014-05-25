@@ -1,0 +1,18 @@
+##############################################################################
+## subMakefile for gfx
+##############################################################################
+
+gfx/gfx$(GFX_OVER).o: gfx/gfx$(GFX_OVER).c gfx/gfx$(GFX_OVER).h 
+gfx/gfx$(GFX_OVER).o: gfx/gfx_scale.h gfx/subMakefile gfx/gfx.h
+gfx/gfx$(GFX_OVER).o: config.h periph/periph.h file/file.h sdl.h
+
+gfx/gfx_scale.o: gfx/gfx_scale.c gfx/gfx.h gfx/gfx_scale.h gfx/subMakefile
+gfx/gfx_scale.o: config.h periph/periph.h
+
+gfx/gfx_prescale.o: gfx/gfx_prescale.c gfx/gfx.h gfx/gfx_prescale.h
+gfx/gfx_prescale.o: config.h periph/periph.h gfx/subMakefile
+
+
+OBJS += gfx/gfx$(GFX_OVER).o
+OBJS += gfx/gfx_scale.o
+OBJS += gfx/gfx_prescale.o

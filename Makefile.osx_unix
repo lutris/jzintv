@@ -1,0 +1,105 @@
+##############################################################################
+## Source-level Makefile for jzintv
+##
+## The whole make process is driven from the top-level Makefile.  In contrast
+## to the (poor) advice given in the Make documentation, I do _not_ call make
+## recursively to build the source of this project.
+##############################################################################
+
+##############################################################################
+## Project directory structure
+##############################################################################
+B=../bin
+L=../lib
+R=../rom
+
+##############################################################################
+## Project-wide build flags
+##############################################################################
+P = export PATH;
+
+SDL_CFLAGS := $(shell sdl-config --cflags)
+# Need to add the following switch to allow the compiler to understand
+# #include <SDL/foo.h> directives.
+SDL_CFLAGS += -I$(shell sdl-config --prefix)/include
+SDL_LFLAGS := $(shell sdl-config --libs)
+
+# Set "X" to be the executable extension
+X =        
+
+# Set "RM" to be the remove/delete command
+RM = rm -f 
+
+ WARN    = -Wall -W -Wshadow -Wpointer-arith \
+	       -Wbad-function-cast -Wcast-qual 
+ WARNXX  = -Wall -W -Wshadow -Wpointer-arith -Wcast-qual 
+
+ CC  = $(P) gcc 
+ CXX = $(P) g++
+#CC  = $(P) icc
+#CC  = $(P) /usr/bin/gcc
+#CXX = $(P) /usr/bin/g++
+
+#I don't want intv2pc on my Macs! -- fri. Aug 6. JJT
+# DEF_FLAGS = -DDIRECT_INTV2PC
+#DEF_FLAGS = -DNEED_INOUT
+#My system doesn't have stricmp --fri. Aug. 6 JJT
+DEF_FLAGS =  -Dmacosx
+#-DNO_STRICMP
+#OPT_FLAGS = -ggdb 
+#OPT_FLAGS = -O
+#OPT_FLAGS = -O2 -ggdb
+ OPT_FLAGS = -O6 -fomit-frame-pointer
+#OPT_FLAGS = -O2 -pg -ggdb -DLOCAL=
+#OPT_FLAGS = -tpp6 -axMiKW -ip -vec_report3 -opt_report -ansi_alias -restrict -DHAVE_RESTRICT -align -O3 -Ob1 # -ipo # intel icc flags
+
+#Remove the -I . option to let the asm utilities compile. - Thu. Aug. 12 JJT
+CFLAGS   = $(OPT_FLAGS) $(WARN)    -I. -I.. $(DEF_FLAGS) $(EXTRA)
+CXXFLAGS = $(OPT_FLAGS) $(WARNXX)  -I.. $(DEF_FLAGS) $(EXTRA)
+LFLAGS   = -L../lib
+
+OBJS=jzintv.o 
+PROG=$(B)/jzintv
+TOCLEAN=$(B)/jzintv core libjzintv_common.a jzintv_fromcommon
+
+PROGS=$(PROG)
+
+CFLAGS += $(SDL_CFLAGS) 
+#Reserving SDL to the FINAL link --Sat Aug. 7 JJt
+#LFLAGS += $(SDL_LFLAGS)
+
+
+
+##############################################################################
+## Generic build-rules
+##############################################################################
+
+all: $(OBJS) $(PROG)
+
+##############################################################################
+## Makefile.common includes all the subMakefiles and such
+##############################################################################
+ include Makefile.common
+ 
+$(PROG): $(OBJS) libjzintv_common.a
+	$(CC) -o $(PROG) $(OBJS) $(CFLAGS) $(LFLAGS) $(SDL_LFLAGS)
+
+#Library for use with the OS X GUI project.
+libjzintv_common.a : $(OBJS) 
+	libtool -o libjzintv_common.a $(OBJS) 
+
+#Test program for libjzintv_common.a . If everything is OK, this program should
+#behave exactly like jzintv.
+jzintv_fromcommon : libjzintv_common.a 
+	$(CC) -o jzintv_fromcommon   $(LFLAGS) $(SDL_LFLAGS) -L. -ljzintv_common 
+
+clean:
+	$(RM) $(OBJS) 
+	$(RM) $(TOCLEAN)
+	
+%.o: %.c
+	$(CC) -o $@ $(CFLAGS) -c $<
+
+build: jzIntv SDK-1600
+
+

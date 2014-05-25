@@ -1,0 +1,84 @@
+##############################################################################
+## Source-level Makefile for jzintv
+##
+## The whole make process is driven from the top-level Makefile.  In contrast
+## to the (poor) advice given in the Make documentation, I do _not_ call make
+## recursively to build the source of this project.
+##############################################################################
+
+##############################################################################
+## Project directory structure
+##############################################################################
+B=../bin
+L=../lib
+R=../rom
+X=.exe
+RM=del
+
+##############################################################################
+## Project-wide build flags
+##############################################################################
+
+SDL_CFLAGS := $(shell sdl-config --cflags)
+SDL_LFLAGS := -L/joe/mingw/lib -lmingw32 -lSDLmain -lSDL #-mwindows
+
+ WARN    = -Wall -W -Wshadow -Wpointer-arith
+ WARN   += -Wbad-function-cast -Wcast-qual 
+ WARNXX  = -Wall -W -Wshadow -Wpointer-arith -Wcast-qual 
+
+ CC  = gcc
+ CXX = g++
+
+ DEF_FLAGS  = -DWIN32 -DDOSTMP -DDIRECT_INTV2PC 
+
+#OPT_FLAGS = -g3 -ggdb 
+#OPT_FLAGS = -O
+#OPT_FLAGS = -O  -ggdb 
+ OPT_FLAGS = -O6 -fomit-frame-pointer #-msse2 #-march=pentium4
+#OPT_FLAGS = -O2 -pg -ggdb 
+
+CFLAGS   = $(OPT_FLAGS) $(WARN)   -I. -I.. $(DEF_FLAGS) $(EXTRA)
+CXXFLAGS = $(OPT_FLAGS) $(WARNXX) -I. -I.. $(DEF_FLAGS) $(EXTRA)
+LFLAGS   = -L../lib 
+
+OBJS=jzintv.o
+PROG=$(B)/jzintv$(X)
+TOCLEAN=$(B)/jzintv$(X) core
+
+PROGS=$(PROG)
+
+JZ_CFLAGS = $(CFLAGS) $(SDL_CFLAGS) 
+JZ_LFLAGS = $(LFLAGS) $(SDL_LFLAGS)
+
+##############################################################################
+## Generic build-rules
+##############################################################################
+
+all: $(OBJS) $(PROG)
+
+#mk_tbl_hack:
+#	make -f Makefile.w32 $(B)/mk_tbl
+#	copy $(B)/mk_tbl $(B)/mk_tbl.exe
+
+$(PROG): $(OBJS)
+	$(CC) -o $(PROG) $(OBJS) $(JZ_CFLAGS) $(JZ_LFLAGS)
+
+clean:
+	for %f in ( $(OBJS) $(TOCLEAN) ) do del %f
+
+%.o: %.c
+	$(CC) -o $@ $(CFLAGS) -c $<
+
+##############################################################################
+## Win32 specific stuff
+##############################################################################
+
+OBJS += pads/pads_cgc_win32.o pads/pads_intv2pc.o SDL_main.o
+
+##############################################################################
+## Makefile.common includes all the subMakefiles and such
+##############################################################################
+include Makefile.common
+build: jzIntv SDK-1600
+
+

@@ -1,0 +1,57 @@
+##############################################################################
+## subMakefile for bincfg
+##############################################################################
+
+## object files int his module
+BCOBJ  = bincfg/bincfg.o bincfg/bincfg_grmr.tab.o bincfg/bincfg_lex.o 
+
+## generated C/H files from bison, flex.
+BCGEN  = bincfg/bincfg_grmr.tab.c bincfg/bincfg_grmr.tab.h
+BCGEN += bincfg/bincfg_grmr.output bincfg/bincfg_lex.c 
+
+bincfg/legacy.o:          bincfg/legacy.h mem/mem.h bincfg/bincfg_grmr.tab.h
+bincfg/legacy.o:          bincfg/bincfg.h periph/periph.h config.h
+bincfg/legacy.o:	      cp1600/cp1600.h file/file.h
+
+bincfg/bincfg.o:          config.h plat/plat_lib.h misc/ll.h file/file.h
+bincfg/bincfg.o:          bincfg/bincfg.h
+bincfg/bincfg.o:          bincfg/bincfg_grmr.tab.h
+bincfg/bincfg.o:          bincfg/bincfg_lex.h 
+
+bincfg/bincfg_lex.o:      config.h plat/plat_lib.h misc/ll.h
+bincfg/bincfg_lex.o:      bincfg/bincfg.h
+bincfg/bincfg_lex.o:      bincfg/bincfg_grmr.tab.h
+bincfg/bincfg_lex.o:      bincfg/bincfg_lex.h
+
+bincfg/bincfg_grmr.tab.o: config.h plat/plat_lib.h misc/ll.h
+bincfg/bincfg_grmr.tab.o: bincfg/bincfg.h
+bincfg/bincfg_grmr.tab.o: bincfg/bincfg_lex.h bincfg/bincfg_grmr.tab.h
+
+## special rules for generating grammar parser and lexer engines
+
+bincfg/bincfg_grmr.tab.o: bincfg/bincfg_grmr.tab.h bincfg/bincfg_grmr.tab.c
+	$(CC) -o bincfg/bincfg_grmr.tab.o $(CFLAGS) -c bincfg/bincfg_grmr.tab.c
+
+bincfg/bincfg_lex.o: bincfg/bincfg_lex.c bincfg/bincfg_lex.h
+
+.DUMMY:	bincfg_regen
+
+bincfg_regen:
+	bison --defines --verbose --token-table --name-prefix="bc_" --file-prefix="bincfg/bincfg_grmr"  bincfg/bincfg_grmr_real.y
+	flex -obincfg/bincfg_lex.c bincfg/bincfg_lex_real.l
+
+#bincfg/bincfg_lex.o: bincfg/bincfg_lex.c
+#	$(CC) -o bincfg/bincfg_lex.o $(CFLAGS) -c bincfg/bincfg_lex.c
+
+## bc_test is a simple test program for parsing config files in isolation.
+## It will be useful for diagnostic purposes.
+$(B)/bc_test$(X): $(BCOBJ) bincfg/bc_test.o misc/ll.o file/file.o
+	$(CC) -o $(B)/bc_test$(X) $(CFLAGS) $(BCOBJ) bincfg/bc_test.o misc/ll.o file/file.o $(LFLAGS)
+
+#PROGS   += $(B)/bc_test$(X)
+#TOCLEAN += $(B)/bc_test$(X)
+PROGS   += 
+TOCLEAN += $(BCOBJ) bincfg/bc_test.o bincfg/legacy.o
+GENCLN  += $(BCGEN)
+GENTRG  += bincfg_regen
+OBJS    += $(BCOBJ) bincfg/legacy.o

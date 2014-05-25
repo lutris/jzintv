@@ -1,0 +1,14 @@
+##############################################################################
+## subMakefile for misc support routines
+##############################################################################
+
+misc/crc16.o:      misc/crc16.h   misc/subMakefile config.h
+misc/crc32.o:      misc/crc32.h   misc/subMakefile config.h
+misc/avl.o:        misc/avl.h     misc/subMakefile config.h
+misc/ll.o:         misc/ll.h      misc/subMakefile config.h
+misc/jzprint.o:    misc/jzprint.h misc/subMakefile config.h
+misc/file_crc32.o: misc/crc32.h   misc/subMakefile config.h
+
+OBJS += misc/crc32.o misc/crc16.o misc/avl.o misc/ll.o misc/jzprint.o
+OBJS += misc/file_crc32.o
+

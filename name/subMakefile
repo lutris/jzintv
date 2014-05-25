@@ -1,0 +1,8 @@
+##############################################################################
+## subMakefile for name
+##############################################################################
+
+name/name.o: name/name.c name/name.h name/subMakefile config.h
+name/name_list.o: name/name_list.c name/name.h name/subMakefile config.h
+
+OBJS += name/name.o name/name_list.o

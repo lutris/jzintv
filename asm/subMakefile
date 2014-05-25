@@ -1,0 +1,69 @@
+##############################################################################
+## subMakefile for as1600
+##############################################################################
+
+ASMSRC = asm/as1600.tab.c asm/fraosub.c asm/frapsub.c asm/frasmain.c
+ASMSRC+= asm/cpp_main.cpp asm/fryylex.c asm/intermed.c asm/memo_string.c
+ASMOBJ = asm/as1600.tab.o asm/fraosub.o asm/frapsub.o asm/frasmain.o
+ASMOBJ+= asm/cpp_main.o asm/fryylex.o asm/intermed.o asm/memo_string.o
+ASMOBJ+= icart/icartrom.o misc/crc16.o plat/gnu_getopt.o icart/icartbin.o
+IMOBJ  = imasm/c_wrap.o imasm/parser.o imasm/token.o imasm/strfifo.o 
+
+
+$(B)/as1600$(X): $(ASMOBJ) $(IMOBJ) $(BCOBJ) file/file.o misc/ll.o
+	$(CXX) -o $(B)/as1600$(X) $(CFLAGS) $(IMOBJ) $(ASMOBJ) $(BCOBJ) file/file.o misc/ll.o $(LFLAGS)
+
+
+asm/as1600.o:       asm/protos.h file/file.h config.h asm/intermed.h
+asm/as1600.tab.o:   asm/protos.h file/file.h config.h asm/intermed.h
+asm/intermed.o:     asm/protos.h file/file.h config.h asm/intermed.h
+asm/fraosub.o:      asm/protos.h file/file.h config.h asm/intermed.h
+asm/frapsub.o:      asm/protos.h file/file.h config.h asm/intermed.h
+asm/frasmain.o:     asm/protos.h file/file.h config.h asm/intermed.h
+asm/fryylex.o:      asm/protos.h file/file.h config.h asm/intermed.h
+                   
+asm/as1600.o:       asm/fraebin.h asm/fraeuni.h asm/fragcon.h asm/frasmdat.h
+asm/as1600.tab.o:   asm/fraebin.h asm/fraeuni.h asm/fragcon.h asm/frasmdat.h
+asm/intermed.h:     asm/fraebin.h asm/fraeuni.h asm/fragcon.h asm/frasmdat.h
+asm/fraosub.o:      asm/fraebin.h asm/fraeuni.h asm/fragcon.h asm/frasmdat.h
+asm/frapsub.o:      asm/fraebin.h asm/fraeuni.h asm/fragcon.h asm/frasmdat.h
+asm/frasmain.o:     asm/fraebin.h asm/fraeuni.h asm/fragcon.h asm/frasmdat.h
+asm/fryylex.o:      asm/fraebin.h asm/fraeuni.h asm/fragcon.h asm/frasmdat.h
+                   
+asm/as1600.o:       asm/getopt.h asm/as1600.tab.h asm/types.h asm/typetags.h
+asm/as1600.tab.o:   asm/getopt.h asm/as1600.tab.h asm/types.h asm/typetags.h
+asm/intermed.o:     asm/getopt.h asm/as1600.tab.h asm/types.h asm/typetags.h
+asm/fraosub.o:      asm/getopt.h asm/as1600.tab.h asm/types.h asm/typetags.h
+asm/frapsub.o:      asm/getopt.h asm/as1600.tab.h asm/types.h asm/typetags.h
+asm/frasmain.o:     asm/getopt.h asm/as1600.tab.h asm/types.h asm/typetags.h
+asm/fryylex.o:      asm/getopt.h asm/as1600.tab.h asm/types.h asm/typetags.h
+
+asm/as1600.tab.o:   asm/memo_string.h
+asm/memo_string.o:  asm/memo_string.h config.h
+
+asm/frasmain.o: imasm/c_wrap.h file/file.h config.h
+asm/fryylex.o:  imasm/c_wrap.h
+
+asm/fraosub.o:  config.h icart/icartrom.h icart/icartbin.h
+
+#asm/cpp_main.o: asm/cpp_main.cpp
+#	$(CXX) $(CFLAGS) -o asm/cpp_main.o -c asm/cpp_main.cpp
+
+asm/as1600.tab.o: asm/as1600.tab.c asm/as1600.tab.h file/file.h config.h
+
+.DUMMY:	asm_regen
+
+asm_regen:
+	bison -o asm/as1600.tab.c --defines asm/as1600_real.y
+
+asm_regen_report:
+	bison -o asm/as1600.tab.c --report all --report-file asm/as1600.report --defines asm/as1600_real.y
+
+#asm/as1600.o: asm/as1600.tab.h
+#	$(CC) -o asm/as1600.o $(CFLAGS) -c asm/as1600.tab.c
+
+TOCLEAN += $(B)/as1600$(X) $(ASMOBJ) $(IMOBJ) asm/as1600.report
+PROGS   += $(B)/as1600$(X)
+GENCLN	+= asm/as1600.tab.c asm/as1600.tab.h
+GENTRG	+= asm_regen
+

@@ -1,0 +1,12 @@
+##############################################################################
+## subMakefile for plat
+##############################################################################
+
+plat/plat_sdl.o: plat/plat_sdl.c plat/plat.h config.h plat/subMakefile
+plat/plat_lib.o: plat/plat_lib.c plat/plat_lib.h config.h plat/subMakefile
+plat/plat_lib.o: sdl.h
+plat/gnu_getopt.o: plat/gnu_getopt.c plat/gnu_getopt.h plat/subMakefile
+
+OBJS+=plat/plat_sdl.o plat/plat_lib.o plat/gnu_getopt.o
+
+config.h: plat/plat_lib.h

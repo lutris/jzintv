@@ -1,0 +1,26 @@
+##############################################################################
+## subMakefile for IMASM
+##############################################################################
+
+IMASMSRC  = imasm/main.cpp imasm/parser.cpp imasm/token.cpp imasm/strfifo.cpp 
+IMASMOBJ  = imasm/main.o   imasm/parser.o   imasm/token.o   imasm/strfifo.o   
+IMASMOBJ += imasm/c_wrap.o
+
+$(B)/imasm$(X): $(IMASMOBJ)
+	$(CXX) -o $(B)/imasm$(X) $(CFLAGS) $(IMASMOBJ)  $(LFLAGS)
+
+imasm/main.o:    imasm/main.cpp    imasm/includes.h imasm/excep.h imasm/main.h 
+imasm/parser.o:  imasm/parser.cpp  imasm/includes.h imasm/excep.h imasm/main.h 
+imasm/token.o:   imasm/token.cpp   imasm/includes.h imasm/excep.h imasm/main.h 
+imasm/c_wrap.o:  imasm/c_wrap.cpp  imasm/includes.h imasm/excep.h imasm/main.h 
+imasm/strfifo.o: imasm/strfifo.cpp imasm/excep.h imasm/strfifo.h
+
+imasm/main.o:    imasm/token.h imasm/parser.h imasm/strfifo.h
+imasm/parser.o:  imasm/token.h imasm/parser.h imasm/strfifo.h
+imasm/token.o:   imasm/token.h imasm/parser.h
+imasm/c_wrap.o:  imasm/token.h imasm/parser.h imasm/strfifo.h imasm/c_wrap.h
+
+#TOCLEAN += $(B)/imasm$(X) $(IMASMOBJ) 
+#PROGS   += $(B)/imasm$(X)
+
+TOCLEAN += $(IMASMOBJ) 

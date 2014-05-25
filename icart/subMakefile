@@ -1,0 +1,18 @@
+##############################################################################
+## subMakefile for icart
+##############################################################################
+
+icart/icart.o: icart/icart.c icart/icart.h icart/subMakefile periph/periph.h
+icart/icart.o: config.h cp1600/cp1600.h cp1600/req_bus.h
+icart/icartrom.o: icart/icartrom.c icart/icartrom.h misc/crc16.h
+icart/icartrom.o: icart/subMakefile config.h
+icart/icartbin.o: icart/icartbin.c icart/icartbin.h misc/crc16.h
+icart/icartbin.o: icart/subMakefile config.h icart/icartrom.h
+icart/icartbin.o: bincfg/bincfg.h
+icart/icartfile.o: icart/icartrom.h icart/icartbin.h 
+icart/icartfile.o: icart/subMakefile config.h
+
+OBJS += icart/icart.o
+OBJS += icart/icartrom.o
+OBJS += icart/icartbin.o
+OBJS += icart/icartfile.o

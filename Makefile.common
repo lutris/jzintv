@@ -1,0 +1,78 @@
+##############################################################################
+## Common Makefile for all targets
+##############################################################################
+
+CFLAGS += -DJZINTV_VERSION_MAJOR=0x01 -DJZINTV_VERSION_MINOR=0x00
+
+##############################################################################
+## Include module-specific Makefiles.  
+##############################################################################
+ include cfg/subMakefile	# Machine configuration
+ include misc/subMakefile	# Miscellaneous support routines.
+ include plat/subMakefile	# Platform-specific initialization
+ include event/subMakefile	# Event subsystem
+ include gfx/subMakefile	# Graphics support routines
+ include snd/subMakefile	# Sound support routines
+ include mvi/subMakefile	# Movie encode/decode routines.
+ include debug/subMakefile	# Debugger
+ include periph/subMakefile	# Peripheral bus
+ include cp1600/subMakefile	# CP-1600 CPU simulator
+ include mem/subMakefile	# Memories (RAMs and ROMs)
+ include icart/subMakefile	# Intellicart emulation
+ include icart/subMakefile2	# Intellicart emulation
+ include stic/subMakefile	# Standard Television Interface Circuit
+ include pads/subMakefile	# Game pad input
+ include ay8910/subMakefile	# AY-891x Sound Chip
+ include ivoice/subMakefile	# Intellivoice Support
+ include speed/subMakefile	# Speed controller object
+ include file/subMakefile	# File I/O routines
+ include bincfg/subMakefile # .BIN+.CFG parser 
+ include util/subMakefile	# Utility programs
+ include asm/subMakefile	# Assembler (as1600)
+ include imasm/subMakefile	# Macro support for assembler
+ include dasm/subMakefile	# Disassembler (dasm1600)
+ include gif/subMakefile	# GIF support routines
+ include demo/subMakefile   # Demo file recording code
+ include joy/subMakefile    # Joystick decoder
+ include mouse/subMakefile  # Mouse decoder
+ include name/subMakefile   # Name database
+ include serializer/subMakefile # Serializer (save/load)
+ include minilzo/subMakefile 	# LZO compression (for IMV)
+ include jlp/subMakefile    # Jean-Luc Project extra features support
+
+
+.PHONY: all clean regen cleangen jzIntv SDK-1600 build
+
+.SUFFIXES: .cpp .o
+
+$(PROG): $(OBJS)
+
+all: build
+
+jzIntv: $(PROG)
+
+SDK-1600: $(PROGS)
+
+regen: $(GENTRG)
+
+cleangen: 
+	$(RM) $(GENCLN)
+
+
+.cpp.o :
+	$(CXX) -c $(CXXFLAGS) -o $@ $<
+
+.c.s:
+	$(CC) -S -c $(CFLAGS) -o $@ $<
+
+jzintv.o: config.h periph/periph.h cp1600/cp1600.h mem/mem.h
+jzintv.o: pads/pads.h debug/debug_.h cp1600/op_decode.h cp1600/op_exec.h
+jzintv.o: stic/stic.h speed/speed.h gfx/gfx.h snd/snd.h ay8910/ay8910.h
+jzintv.o: plat/plat.h plat/plat_lib.h event/event.h event/event_tbl.h
+jzintv.o: file/file.h ivoice/ivoice.h icart/icart.h cp1600/req_bus.h
+jzintv.o: bincfg/legacy.h bincfg/bincfg.h pads/pads_intv2pc.h
+jzintv.o: demo/demo.h cfg/cfg.h cfg/mapping.h misc/jzprint.h
+jzintv.o: name/name.h misc/file_crc32.h jlp/jlp.h
+
+$(OBJS): misc/jzprint.h config.h plat/plat_lib.h
+

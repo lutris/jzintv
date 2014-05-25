@@ -1,0 +1,7 @@
+##############################################################################
+## subMakefile for snd
+##############################################################################
+
+snd/snd.o: snd/snd.c snd/snd.h snd/subMakefile sdl.h config.h periph/periph.h
+
+OBJS+=snd/snd.o

@@ -1,0 +1,81 @@
+##############################################################################
+## Source-level Makefile for jzintv
+##
+## The whole make process is driven from the top-level Makefile.  In contrast
+## to the (poor) advice given in the Make documentation, I do _not_ call make
+## recursively to build the source of this project.
+##############################################################################
+
+##############################################################################
+## Project directory structure
+##############################################################################
+B=../bin
+L=../lib
+R=../rom
+
+##############################################################################
+## Project-wide build flags
+##############################################################################
+P           = export PATH;
+
+SDL_CFLAGS := $(shell sdl-config --cflags)
+SDL_LFLAGS := $(shell sdl-config --libs)
+
+# Set "X" to be the executable extension
+X =        
+
+# Set "RM" to be the remove/delete command
+RM = rm -f 
+
+#WARN    = -Wall -W -Wshadow -Wpointer-arith \
+			#-Wbad-function-cast -Wcast-qual 
+
+#CC = $(P) egcs
+#CC = $(P) gcc 
+ CC = $(P) icc
+#CC = $(P) /usr/bin/gcc
+
+ DEF_FLAGS = #-DDIRECT_HCIF
+ DEF_FLAGS = -DNEED_INOUT
+
+#OPT_FLAGS = -ggdb 
+#OPT_FLAGS = -O
+#OPT_FLAGS = -O2 -ggdb $(WARN)
+#OPT_FLAGS = -O6 -fomit-frame-pointer $(WARN)
+#OPT_FLAGS = -O2 -pg -ggdb $(WARN)
+ OPT_FLAGS = -tpp6 -axMiKW -ip -vec_report3 -opt_report -ansi_alias -restrict -DHAVE_RESTRICT -align -O3 -Ob1 # -ipo # intel icc flags
+
+CFLAGS = $(OPT_FLAGS) -I. -I.. $(DEF_FLAGS) $(EXTRA)
+LFLAGS = -L../lib
+
+
+OBJS=jzintv.o
+PROG=$(B)/jzintv
+TOCLEAN=$(B)/jzintv core
+
+PROGS=$(PROG)
+
+CFLAGS += $(SDL_CFLAGS) 
+LFLAGS += $(SDL_LFLAGS)
+
+##############################################################################
+## Generic build-rules
+##############################################################################
+
+all: $(OBJS) $(PROG)
+
+$(PROG): $(OBJS)
+	$(CC) -o $(PROG) $(OBJS) $(CFLAGS) $(LFLAGS)
+
+clean:
+	$(RM) $(OBJS) 
+	$(RM) $(TOCLEAN)
+
+%.o: %.c
+	$(CC) -o $@ $(CFLAGS) -c $<
+
+##############################################################################
+## Makefile.common includes all the subMakefiles and such
+##############################################################################
+include Makefile.common
+build: jzIntv SDK-1600
